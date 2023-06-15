@@ -1,6 +1,7 @@
 import json
 import re
 import datetime
+import os
 
 
 class Players:
@@ -10,7 +11,7 @@ class Players:
         self.date_of_birth = []
         self.list_of_all_player_numbers = []
 
-    def add_players(self, add_new_player="o", player_number=0):
+    def add_players(self, add_new_player="o", player_number=0, score=0):
         """Add players to the tournament with the control terminal
 
         Manually enter family_name, first_name and date_of_birth
@@ -50,7 +51,8 @@ class Players:
                     "Joueur numero " + str(each_player_number): {
                         "Nom de famille": each_family_name,
                         "Prenom": each_first_name,
-                        "Date de naissance": each_date_of_birth
+                        "Date de naissance": each_date_of_birth,
+                        "Score": score
                     },
                 })
 
@@ -59,7 +61,19 @@ class Players:
                 break
         return dictionary_of_all_players
 
-    def json_file_creation(self):
-        """Creation of the json file to retrieve the information of each player"""
+    def json_file_creation(self, data_to_add=None):
+        """Creation of the json file to retrieve the information of each player
+
+        If the json file doesn't exist then it's created with the add_players function otherwise the file is modified
+        """
+        if not os.path.isfile("players.json"):
+            data_to_add = self.add_players()
+
         with open("players.json", "w") as json_file:
-            json.dump(self.add_players(), json_file)
+            json.dump(data_to_add, json_file, indent=4)
+
+    def json_file_playback(self):
+        """Json data recovery to manipulate and modify them if necessary"""
+        with open("players.json") as json_file:
+            json_file_data = json.load(json_file)
+        return json_file_data
