@@ -35,7 +35,6 @@ class Match:
             if ask_match_result == "o":
                 ask_for_the_winning_player_s_number = input("Numéro du joueur gagnant : ")
                 list_of_winning_players.append(ask_for_the_winning_player_s_number)
-                number_of_players_in_the_match.remove(ask_for_the_winning_player_s_number)
             else:
                 list_of_tied_players.extend(number_of_players_in_the_match)
         return list_of_winning_players, list_of_tied_players
