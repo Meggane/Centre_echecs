@@ -1,6 +1,6 @@
-import random
 import re
 import players
+import turns
 
 
 list_of_winning_players = []
@@ -11,23 +11,9 @@ class Match:
     def __int__(self):
         self.player_score = []
 
-    def randomly_mix_players(self):
-        """Randomly mix players to create random matches for the first game"""
-        players_list = list(players.Players().json_file_playback())
-        mix_of_players = random.sample(players_list, len(players_list))
-        return mix_of_players
-
-    def random_player_selection(self):
-        """Define players who play together according to the random list of players"""
-        mixed_list_players = self.randomly_mix_players()
-        matches_list = []
-        for each_player in range(0, len(mixed_list_players), 2):
-            matches_list.append(mixed_list_players[each_player:each_player + 2])
-        return matches_list
-
     def end_of_game_result(self):
         """Recovery of winning player and tied player numbers"""
-        ongoing_matches = self.random_player_selection()
+        ongoing_matches = players.Players().random_player_selection()
         for each_match in ongoing_matches:
             players_in_the_match = "".join(each_match)
             number_of_players_in_the_match = re.findall(r"[0-9]", players_in_the_match)
@@ -51,16 +37,19 @@ class Match:
         The losing player wins 0 point
         In the event of a tie, each player wins 0.5 point
         """
-        self.end_of_game_result()
-        json_file = players.Players().json_file_playback()
-        for winning_player_number in list_of_winning_players:
-            winning_player = self.score_recovery(json_file, winning_player_number)
-            winning_player_s_score = winning_player.get("Score", [])
-            winning_player_s_score += 1
-            winning_player["Score"] = winning_player_s_score
-        for tied_player_number in list_of_tied_players:
-            tied_player = self.score_recovery(json_file, tied_player_number)
-            tied_player_s_score = tied_player.get("Score", [])
-            tied_player_s_score += 0.5
-            tied_player["Score"] = tied_player_s_score
-        return json_file
+        final_score_of_players_at_the_end_of_the_game = {}
+        recovery_of_the_json_file = players.Players().json_file_playback()
+        recovery_of_player_scores_at_the_end_of_the_game = turns.Turns().creation_of_turn()
+        for each_player_score in recovery_of_player_scores_at_the_end_of_the_game[0][1]:
+            final_score_of_players_at_the_end_of_the_game.update({
+                each_player_score[1][0]: each_player_score[1][1],
+                each_player_score[2][0]: each_player_score[2][1]
+            })
+
+        for json_file_key, json_file_value in recovery_of_the_json_file.items():
+            if json_file_key in final_score_of_players_at_the_end_of_the_game:
+                json_file_value["Score"] += final_score_of_players_at_the_end_of_the_game[json_file_key]
+
+        players.Players().json_file_creation(recovery_of_the_json_file)
+
+        return recovery_of_the_json_file

@@ -2,6 +2,7 @@ import json
 import re
 import datetime
 import os
+import random
 
 
 class Players:
@@ -77,3 +78,17 @@ class Players:
         with open("players.json") as json_file:
             json_file_data = json.load(json_file)
         return json_file_data
+
+    def randomly_mix_players(self):
+        """Randomly mix players to create random matches for the first game"""
+        players_list = list(self.json_file_playback())
+        mix_of_players = random.sample(players_list, len(players_list))
+        return mix_of_players
+
+    def random_player_selection(self):
+        """Define players who play together according to the random list of players"""
+        mixed_list_players = self.randomly_mix_players()
+        matches_list = []
+        for each_player in range(0, len(mixed_list_players), 2):
+            matches_list.append(mixed_list_players[each_player:each_player + 2])
+        return matches_list

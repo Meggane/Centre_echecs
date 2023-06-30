@@ -1,9 +1,9 @@
 import re
-import match
+import players
 
 
 NUMBER_OF_TURNS = 4
-PLAYER_OF_EACH_MATCH = match.Match().random_player_selection()
+PLAYER_OF_EACH_MATCH = players.Players().random_player_selection()
 
 
 class Turns:
