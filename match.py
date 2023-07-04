@@ -53,3 +53,45 @@ class Match:
         players.Players().json_file_creation(recovery_of_the_json_file)
 
         return recovery_of_the_json_file
+
+    def player_ranking(self):
+        """Retrieving scores from each player and ranking based on their score"""
+        players_list = players.Players().json_file_playback()
+        scores = {}
+        for key, value in players_list.items():
+            scores.update({
+                key: value["Score"]
+            })
+        sorted_scores_list_with_values = dict(sorted(scores.items(), key=lambda x: x[1], reverse=True))
+        return sorted_scores_list_with_values
+
+    def selection_of_players_according_to_their_ranking(self):
+        """Assign the rank of the player according to his ranking
+
+        If several players have the same score then they have the same rank and we skip the necessary number of ranks
+        for the next
+        """
+        player_ranking_list = self.player_ranking()
+        score_list = []
+        for value_in_player_ranking in player_ranking_list.values():
+            score_list.append(value_in_player_ranking)
+
+        sorted_scores = sorted(set(score_list), reverse=True)
+        list_of_players_with_their_ranking = []
+        current_rank = 1
+
+        for score in sorted_scores:
+            players_in_different_lists_according_to_their_ranking = [player for player, player_score
+                                                                     in player_ranking_list.items()
+                                                                     if player_score == score]
+            list_of_players_with_their_ranking.extend((current_rank, player) for player
+                                                      in players_in_different_lists_according_to_their_ranking)
+            current_rank += len(players_in_different_lists_according_to_their_ranking)
+
+        dictionary_with_the_rank_of_each_player = {}
+        for rank, player in list_of_players_with_their_ranking:
+            dictionary_with_the_rank_of_each_player.update({
+                f"{player}": f"Rang {rank}"
+            })
+
+        return dictionary_with_the_rank_of_each_player
