@@ -1,4 +1,5 @@
 import re
+import datetime
 import players
 
 
@@ -62,14 +63,13 @@ class Turns:
         On each round, we delete the previous one to keep only the last round with the last score of each player
         """
         current_list_of_turns = []
-        tour_end_date = False
-        tour_end_time = False
         recovery_of_the_list_of_matches = self.creation_of_match()
 
         while lap_number <= NUMBER_OF_TURNS:
             current_list_of_turns.clear()
-            tour_start_date = input("Date de début de tour : ")
-            tour_start_time = input("Heure de début de tour : ")
+            current_start_date_and_hour = datetime.datetime.now()
+            tour_start_date = current_start_date_and_hour.strftime("%d/%m/%Y")
+            tour_start_time = current_start_date_and_hour.strftime("%H:%M:%S")
             recovery_of_the_list_of_winning_players_and_tied_players = self.end_of_turn_result()
             list_of_winning_players = recovery_of_the_list_of_winning_players_and_tied_players[0]
             list_of_tied_players = recovery_of_the_list_of_winning_players_and_tied_players[1]
@@ -85,6 +85,10 @@ class Turns:
                         if tied_player in each_player_number[0]:
                             score_of_each_player += 0.5
                     each_player_number[1] = score_of_each_player
+
+            current_end_date_and_hour = datetime.datetime.now()
+            tour_end_date = current_end_date_and_hour.strftime("%d/%m/%Y")
+            tour_end_time = current_end_date_and_hour.strftime("%H:%M:%S")
             current_list_of_turns.append(["Round " + str(lap_number), recovery_of_the_list_of_matches,
                                           ["Date de début : ", tour_start_date, "Heure de début : ", tour_start_time],
                                           ["Date de fin :", tour_end_date, "Heure de fin : ", tour_end_time]])
