@@ -13,11 +13,11 @@ class Players:
         self.list_of_all_player_numbers = []
 
     def add_players(self, add_new_player="o", player_number=0, score=0):
-        """Add players to the tournament with the control terminal
+        """Add players to the tournament with the control terminal.
 
-        Manually enter family_name, first_name and date_of_birth
+        Manually enter family_name, first_name and date_of_birth.
 
-        The number of each player is added automatically
+        The number of each player is added automatically.
         """
         dictionary_of_all_players = {}
         while add_new_player == "o":
@@ -62,31 +62,31 @@ class Players:
                 break
         return dictionary_of_all_players
 
-    def json_file_creation(self, data_to_add=None):
-        """Creation of the json file to retrieve the information of each player
+    def json_file_creation(self, json_file_name, data_to_add=None):
+        """Creation of the json file to retrieve the information of each player.
 
-        If the json file doesn't exist then it's created with the add_players function otherwise the file is modified
+        If the json file doesn't exist then it's created with the add_players function otherwise the file is modified.
         """
         if not os.path.isfile("players.json"):
             data_to_add = self.add_players()
 
-        with open("players.json", "w") as json_file:
+        with open(json_file_name, "w") as json_file:
             json.dump(data_to_add, json_file, indent=4)
 
-    def json_file_playback(self):
-        """Json data recovery to manipulate and modify them if necessary"""
-        with open("players.json") as json_file:
+    def json_file_playback(self, json_file_name):
+        """Json data recovery to manipulate and modify them if necessary."""
+        with open(json_file_name) as json_file:
             json_file_data = json.load(json_file)
         return json_file_data
 
     def randomly_mix_players(self):
-        """Randomly mix players to create random matches for the first game"""
-        players_list = list(self.json_file_playback())
+        """Randomly mix players to create random matches for the first game."""
+        players_list = list(self.json_file_playback("players.json"))
         mix_of_players = random.sample(players_list, len(players_list))
         return mix_of_players
 
     def random_player_selection(self):
-        """Define players who play together according to the random list of players"""
+        """Define players who play together according to the random list of players."""
         mixed_list_players = self.randomly_mix_players()
         matches_list = []
         for each_player in range(0, len(mixed_list_players), 2):
