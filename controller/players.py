@@ -30,9 +30,9 @@ class Players:
         while add_new_player == "o":
             player_number += 1
             for each_family_name, each_first_name, each_date_of_birth \
-                    in zip(manually_retrive_information.ManuallyRetrieveInformation().player_s_family_name(),
-                           manually_retrive_information.ManuallyRetrieveInformation().player_s_first_name(),
-                           manually_retrive_information.ManuallyRetrieveInformation().player_s_date_of_birth()):
+                    in zip(manually_retrieve_information.ManuallyRetrieveInformation().player_s_family_name(),
+                           manually_retrieve_information.ManuallyRetrieveInformation().player_s_first_name(),
+                           manually_retrieve_information.ManuallyRetrieveInformation().player_s_date_of_birth()):
                 dictionary_of_all_players.update({
                     f"Joueur numero {player_number}": {
                         "Nom de famille": each_family_name,
@@ -41,5 +41,5 @@ class Players:
                         "Score": score
                     },
                 })
-                add_new_player = manually_retrive_information.ManuallyRetrieveInformation().adding_a_new_player()
+                add_new_player = manually_retrieve_information.ManuallyRetrieveInformation().adding_a_new_player()
         model.Model().json_file_creation("players.json", dictionary_of_all_players)
