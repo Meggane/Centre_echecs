@@ -1,5 +1,6 @@
 import re
 import os
+import random
 import sys
 
 sys.path.append("..")
@@ -43,3 +44,22 @@ class Players:
                 })
                 add_new_player = manually_retrieve_information.ManuallyRetrieveInformation().adding_a_new_player()
         model.Model().json_file_creation("players.json", dictionary_of_all_players)
+
+    def randomly_mix_players(self):
+        """Randomly mix players to create random matches for the first game."""
+        json_tournaments_file = model.Model().json_file_playback("tournaments.json")
+        list_of_player_numbers = []
+        for tournament_information in json_tournaments_file.values():
+            number_of_each_player = re.findall(r"Joueur numero [0-9]+",
+                                               str(tournament_information["Liste des joueurs"]))
+            list_of_player_numbers.append(number_of_each_player)
+        mix_of_players = random.sample(list_of_player_numbers[-1], len(list_of_player_numbers[-1]))
+        return mix_of_players
+
+    def random_player_selection(self):
+        """Define players who play together according to the random list of players."""
+        mixed_list_players = self.randomly_mix_players()
+        matches_list = []
+        for two_in_two_index in range(0, len(mixed_list_players), 2):
+            matches_list.append(mixed_list_players[two_in_two_index:two_in_two_index + 2])
+        return matches_list
