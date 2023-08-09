@@ -5,6 +5,7 @@ import sys
 sys.path.append("..")
 from view import tournament_information
 from model import model
+from controller import matches
 
 
 class Tournaments:
@@ -70,3 +71,43 @@ class Tournaments:
             model.Model().json_file_creation("tournaments.json", json_tournaments_file)
         else:
             model.Model().json_file_creation("tournaments.json", tournament_information_to_be_created)
+
+    def modification_of_the_list_of_rounds(self):
+        """Modification of the list of round of the json tournaments file.
+
+        If the list of rounds is equal to "En attente" then this is the first round.
+        In this case, we delete the string and add the elements of each round of the json rounds file.
+        If rounds were already present then we add the finished round to the suite.
+        """
+        matches.Matches().next_round()
+        json_tournaments_file = model.Model().json_file_playback("tournaments.json")
+
+        list_of_rounds_of_tournament = []
+        for tournament_information_of_the_json_file in json_tournaments_file.values():
+            list_of_rounds_of_tournament.append(tournament_information_of_the_json_file["Liste des tours"])
+        list_of_the_round_to_be_modified = [list_of_rounds_of_tournament[-1]]
+        if list_of_the_round_to_be_modified[-1] == "En attente":
+            list_of_the_round_to_be_modified.clear()
+
+        json_rounds_file = matches.Matches().update_of_the_json_rounds_file_at_the_end_of_each_round()
+        list_of_keys_in_the_json_rounds_file = []
+        for file_key_with_tournament_number_and_rounds in json_rounds_file:
+            list_of_keys_in_the_json_rounds_file.append(file_key_with_tournament_number_and_rounds)
+
+        list_of_tournament_numbers = []
+        for tournament_number in json_tournaments_file:
+            list_of_tournament_numbers.append(tournament_number)
+
+        dictionary_with_the_list_of_modified_tournaments = {}
+        for each_tournament_number_and_rounds, file_key_with_tournament_number_and_rounds in \
+                zip(list_of_keys_in_the_json_rounds_file, json_rounds_file):
+            if list_of_tournament_numbers[-1] in each_tournament_number_and_rounds:
+                dictionary_with_the_list_of_modified_tournaments.update({
+                    file_key_with_tournament_number_and_rounds:
+                        json_rounds_file[each_tournament_number_and_rounds]
+                })
+
+        json_tournaments_file[list_of_tournament_numbers[-1]]["Liste des tours"] = \
+            dictionary_with_the_list_of_modified_tournaments
+        model.Model().json_file_creation("tournaments.json", json_tournaments_file)
+        matches.Matches().update_of_the_scores_of_the_json_players_file()

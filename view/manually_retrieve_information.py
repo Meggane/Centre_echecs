@@ -49,3 +49,14 @@ class ManuallyRetrieveInformation:
         """Ask if the user wants to add a new player."""
         next_player = input("Voulez-vous ajouter un autre joueur (o/n) : ")
         return next_player
+
+    def know_who_won_at_the_end_of_the_round(self, first_player, second_player):
+        """Ask the user if there was a winner in the round."""
+        ask_match_result = input(f"Joueur numero {first_player} contre Joueur numero {second_player} | Y a t-il un "
+                                 f"gagnant ? (o/n)")
+        return ask_match_result
+
+    def know_the_winning_player_s_number(self):
+        """Ask the user for the winning player’s number."""
+        ask_for_the_winning_player_s_number = input("Numéro du joueur gagnant : ")
+        return ask_for_the_winning_player_s_number
