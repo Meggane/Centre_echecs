@@ -12,7 +12,7 @@ class Tournaments:
     def __init__(self):
         pass
 
-    def creation_of_tournament(self):
+    def creation_of_tournament(self, score=0):
         """Tournament creation.
 
         Each tournament has a number and the information collected from the user.
@@ -39,7 +39,7 @@ class Tournaments:
         json_players_file = model.Model().json_file_playback("players.json")
         list_of_players_in_json_file = []
         for player_number, player_information in json_players_file.items():
-            list_of_players_in_json_file.append(f"{player_number} : {player_information['Nom de famille']} "
+            list_of_players_in_json_file.append(f"{player_number} / {player_information['Nom de famille']} "
                                                 f"{player_information['Prenom']}")
 
         list_of_players_to_add = tournament_information.TournamentInformation().selection_of_players_to_add()
@@ -51,6 +51,14 @@ class Tournaments:
                 if list_index == number_of_player_participating_in_the_tournament - 1:
                     liste_tournoi_players.append(list_of_players_in_json_file[list_index])
 
+        list_of_players_of_the_tournament_with_their_score = {}
+        for index_of_each_player_in_json_players_file in range(len(list_of_players_in_json_file)):
+            for player_number_in_the_tournament in list_of_numbers_of_players_participating_in_the_tournament:
+                if index_of_each_player_in_json_players_file == player_number_in_the_tournament - 1:
+                    list_of_players_of_the_tournament_with_their_score.update({
+                        list_of_players_in_json_file[index_of_each_player_in_json_players_file]: score
+                    })
+
         tournament_information_to_be_created = {
             f"Tournoi numero {tournament_number}": {
                 "Nom du tournoi": list_of_tournament_information[0],
@@ -60,7 +68,7 @@ class Tournaments:
                 "Nombre de tour": number_of_rounds_of_the_tournament,
                 "Numero du tour actuel": 1,
                 "Liste des tours": "En attente",
-                "Liste des joueurs": liste_tournoi_players,
+                "Liste des joueurs": list_of_players_of_the_tournament_with_their_score,
                 "Description": list_of_tournament_information[4]
             }
         }
@@ -107,7 +115,37 @@ class Tournaments:
                         json_rounds_file[each_tournament_number_and_rounds]
                 })
 
+        self.modification_of_players_scores_in_the_tournament(json_tournaments_file)
+
         json_tournaments_file[list_of_tournament_numbers[-1]]["Liste des tours"] = \
             dictionary_with_the_list_of_modified_tournaments
         model.Model().json_file_creation("tournaments.json", json_tournaments_file)
         matches.Matches().update_of_the_scores_of_the_json_players_file()
+
+    def modification_of_players_scores_in_the_tournament(self, tournaments_file):
+        """Modification of the score of each player of the tournament as and when the matches."""
+        json_matches_file = model.Model().json_file_playback("matches.json")
+        json_players_file = model.Model().json_file_playback("players.json")
+
+        list_of_round_numbers = []
+        for round_number in json_matches_file:
+            list_of_round_numbers.append(round_number)
+
+        list_of_tournament_numbers = []
+        for tournament_number in tournaments_file:
+            list_of_tournament_numbers.append(tournament_number)
+
+        list_of_numbers_of_all_players_in_json_players_file = []
+        for player_number in json_players_file:
+            list_of_numbers_of_all_players_in_json_players_file.append(player_number)
+
+        for each_match_with_the_player_s_number_and_score, player_information_key in \
+                zip(json_matches_file[list_of_round_numbers[-1]].values(),
+                    json_players_file[list_of_numbers_of_all_players_in_json_players_file[-2]]):
+            json_players_file[list_of_numbers_of_all_players_in_json_players_file[-2]][player_information_key] = \
+                each_match_with_the_player_s_number_and_score
+            for player_number_and_name in tournaments_file[list_of_tournament_numbers[-1]]["Liste des joueurs"]:
+                for player_number_only in each_match_with_the_player_s_number_and_score:
+                    if player_number_only in player_number_and_name:
+                        tournaments_file[list_of_tournament_numbers[-1]]["Liste des joueurs"][player_number_and_name] \
+                            += each_match_with_the_player_s_number_and_score[player_number_only]

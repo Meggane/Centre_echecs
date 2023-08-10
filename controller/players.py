@@ -63,3 +63,21 @@ class Players:
         for two_in_two_index in range(0, len(mixed_list_players), 2):
             matches_list.append(mixed_list_players[two_in_two_index:two_in_two_index + 2])
         return matches_list
+
+    def player_ranking(self):
+        """Rank players according to their score.
+
+        We get the score of each player according to the selected json file then we classify them.
+        """
+        scores = {}
+        json_tournaments_file = model.Model().json_file_playback("tournaments.json")
+        liste_num_tournoi = []
+        for num_tournoi in json_tournaments_file:
+            liste_num_tournoi.append(num_tournoi)
+
+        for player_num_and_name, player_score in \
+                json_tournaments_file[liste_num_tournoi[-1]]["Liste des joueurs"].items():
+            player_num = re.findall(r"Joueur numero [0-9]+", player_num_and_name)
+            scores.update({"".join(player_num): player_score})
+        ranking_of_players = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+        return ranking_of_players
