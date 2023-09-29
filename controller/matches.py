@@ -21,7 +21,8 @@ class Matches:
         score of each.
         """
         matches_list = []
-        if os.path.isfile("../data/tournaments/matches.json"):
+        try:
+            os.path.isfile("../data/tournaments/matches.json")
             json_matches_file = model.Model().json_file_playback("matches.json")
             for each_round in json_matches_file:
                 round_number = int(each_round[-1])
@@ -34,7 +35,7 @@ class Matches:
                 matches_list.extend(players.Players().random_player_selection())
             else:
                 matches_list.extend(players.Players().change_of_players_playing_together())
-        else:
+        except:
             matches_list.extend(players.Players().random_player_selection())
 
         current_list_of_matches = {}
@@ -55,15 +56,16 @@ class Matches:
     def creation_of_match(self):
         """Creation of the matches.json file"""
         recovery_of_the_match_list = self.creation_of_the_match_list()
-        if not os.path.isfile("../data/tournaments/matches.json"):
-            model.Model().json_file_creation("matches.json", recovery_of_the_match_list)
-        else:
+        try:
+            os.path.isfile("../data/tournaments/matches.json")
             json_matches_file = model.Model().json_file_playback("matches.json")
             for current_round_number, current_matches in recovery_of_the_match_list.items():
                 json_matches_file.update({
                     current_round_number: current_matches,
                 })
             model.Model().json_file_creation("matches.json", json_matches_file)
+        except:
+            model.Model().json_file_creation("matches.json", recovery_of_the_match_list)
 
     def creation_of_round(self):
         """Creation of each round with the tournament and the corresponding round number, the list of matches with the
@@ -89,6 +91,19 @@ class Matches:
         for tournament_number in json_tournaments_file:
             list_of_tournament_numbers.append(tournament_number)
         for matches_of_each_round in json_matches_file.values():
+            color_used_for_each_player = {}
+            for each_match in matches_of_each_round.values():
+                players_of_each_match = []
+                players_of_each_match.extend(each_match.keys())
+                color_randomly_assigned_to_each_player = []
+                for color_of_the_pieces in players.Players().color_of_the_pieces_of_the_chessboard():
+                    color_randomly_assigned_to_each_player.append(color_of_the_pieces)
+
+                color_used_for_each_player.update({
+                    players_of_each_match[0]: color_randomly_assigned_to_each_player[0],
+                    players_of_each_match[1]: color_randomly_assigned_to_each_player[1]
+                })
+
             current_list_of_rounds.update({
                 f"{list_of_tournament_numbers[-1]} / {rounds_list[-1]}": matches_of_each_round,
                 f"Infos du {list_of_tournament_numbers[-1]} / {rounds_list[-1]}": {
@@ -96,6 +111,7 @@ class Matches:
                     "Heure de debut": tour_start_time,
                     "Date de fin": "En cours",
                     "Heure de fin": "En cours",
+                    "Couleur des pieces des joueurs des matchs": color_used_for_each_player
                 }
             })
         model.Model().json_file_creation("rounds.json", current_list_of_rounds)

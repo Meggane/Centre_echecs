@@ -11,7 +11,7 @@ from view import manually_retrieve_information
 
 class Players:
     def __init__(self):
-        pass
+        self.scores = {}
 
     def add_players(self, add_new_player="o", player_number=0, score=0):
         """Add players to the tournament with the control terminal.
@@ -70,7 +70,7 @@ class Players:
 
         We get the score of each player according to the selected json file then we classify them.
         """
-        scores = {}
+        self.scores = {}
         json_tournaments_file = model.Model().json_file_playback("tournaments.json")
         liste_num_tournoi = []
         for num_tournoi in json_tournaments_file:
@@ -79,8 +79,8 @@ class Players:
         for player_num_and_name, player_score in \
                 json_tournaments_file[liste_num_tournoi[-1]]["Liste des joueurs"].items():
             player_num = re.findall(r"Joueur numero [0-9]+", player_num_and_name)
-            scores.update({"".join(player_num): player_score})
-        ranking_of_players = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+            self.scores.update({"".join(player_num): player_score})
+        ranking_of_players = sorted(self.scores.items(), key=lambda item: item[1], reverse=True)
         return ranking_of_players
 
     def definition_of_the_rank_of_the_players(self):
@@ -228,3 +228,14 @@ class Players:
             if two_players_have_already_played_together == False:
                 index_being += 1
         return list_with_modified_player_ranking
+
+    def color_of_the_pieces_of_the_chessboard(self):
+        """Randomly select which player of the match plays white and which one plays black"""
+        random_drawing = random.randint(0, 1)
+        if random_drawing == 0:
+            color_of_the_first_player_s_pieces = "Noir"
+            color_of_the_second_player_s_pieces = "Blanc"
+        else:
+            color_of_the_first_player_s_pieces = "Blanc"
+            color_of_the_second_player_s_pieces = "Noir"
+        return color_of_the_first_player_s_pieces, color_of_the_second_player_s_pieces

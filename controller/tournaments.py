@@ -51,8 +51,8 @@ class Tournaments:
             print("Le nombre de participant n'est pas pair. Veuillez réessayer.")
         else:
             player_number_added_incorrect = False
-            for num in list_of_players_to_add:
-                if num not in list_of_player_number:
+            for player_number_added in list_of_players_to_add:
+                if player_number_added not in list_of_player_number:
                     print("Un numéro de joueur sélectionné n'existe pas. Veuillez réessayer.")
                     player_number_added_incorrect = True
             list_of_numbers_of_players_participating_in_the_tournament = list(map(int, list_of_players_to_add))
@@ -85,11 +85,12 @@ class Tournaments:
                 }
             })
             if player_number_added_incorrect is False:
-                if os.path.isfile("../data/tournaments/tournaments.json"):
+                try:
+                    os.path.isfile("../data/tournaments/tournaments.json")
                     json_tournaments_file = model.Model().json_file_playback("tournaments.json")
                     json_tournaments_file.update(self.tournament_information_to_be_created)
                     model.Model().json_file_creation("tournaments.json", json_tournaments_file)
-                else:
+                except:
                     model.Model().json_file_creation("tournaments.json", self.tournament_information_to_be_created)
 
     def modification_of_the_list_of_rounds(self):
