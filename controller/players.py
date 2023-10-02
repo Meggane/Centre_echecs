@@ -36,9 +36,9 @@ class Players:
                            manually_retrieve_information.ManuallyRetrieveInformation().player_s_first_name(),
                            manually_retrieve_information.ManuallyRetrieveInformation().player_s_date_of_birth()):
                 dictionary_of_all_players.update({
-                    f"Joueur numero {player_number}": {
+                    f"Joueur numéro {player_number}": {
                         "Nom de famille": each_family_name,
-                        "Prenom": each_first_name,
+                        "Prénom": each_first_name,
                         "Date de naissance": each_date_of_birth,
                         "Score": score
                     },
@@ -51,7 +51,7 @@ class Players:
         json_tournaments_file = model.Model().json_file_playback("tournaments.json")
         list_of_player_numbers = []
         for tournament_information in json_tournaments_file.values():
-            number_of_each_player = re.findall(r"Joueur numero [0-9]+",
+            number_of_each_player = re.findall(r"Joueur numéro [0-9]+",
                                                str(tournament_information["Liste des joueurs"]))
             list_of_player_numbers.append(number_of_each_player)
         mix_of_players = random.sample(list_of_player_numbers[-1], len(list_of_player_numbers[-1]))
@@ -78,7 +78,7 @@ class Players:
 
         for player_num_and_name, player_score in \
                 json_tournaments_file[liste_num_tournoi[-1]]["Liste des joueurs"].items():
-            player_num = re.findall(r"Joueur numero [0-9]+", player_num_and_name)
+            player_num = re.findall(r"Joueur numéro [0-9]+", player_num_and_name)
             self.scores.update({"".join(player_num): player_score})
         ranking_of_players = sorted(self.scores.items(), key=lambda item: item[1], reverse=True)
         return ranking_of_players

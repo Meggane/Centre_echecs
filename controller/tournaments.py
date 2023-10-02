@@ -12,15 +12,15 @@ class Tournaments:
     def __init__(self):
         self.tournament_information_to_be_created = {}
 
-    def creation_of_tournament(self, score=0):
-        """Tournament creation.
+    def recovery_of_information_to_create_a_tournament(self, score=0):
+        """Tournament information.
 
         Each tournament has a number and the information collected from the user.
         The number of rounds is set by default to 4.
         Only the current round number and the list of rounds will change throughout the tournament.
         """
         tournament_number = 1
-        if os.path.isfile("../data/tournaments/tournaments.json"):
+        try:
             json_tournaments_file = model.Model().json_file_playback("tournaments.json")
             list_of_number_of_each_tournament = []
             for number_of_each_tournament in json_tournaments_file:
@@ -29,6 +29,8 @@ class Tournaments:
             number_of_the_last_tournament = list_of_number_of_each_tournament[-1]
             number_of_the_last_tournament += 1
             tournament_number = number_of_the_last_tournament
+        except FileNotFoundError:
+            print("Aucun tournoi n'a encore été créé")
 
         list_of_tournament_information = []
         for each_information_of_the_tournament \
@@ -41,57 +43,79 @@ class Tournaments:
         list_of_player_number = []
         for player_number, player_information in json_players_file.items():
             list_of_players_in_json_file.append(f"{player_number} / {player_information['Nom de famille']} "
-                                                f"{player_information['Prenom']}")
+                                                f"{player_information['Prénom']}")
             list_of_player_number.extend(re.findall(r"[0-9]+", player_number))
 
         list_of_players_to_add = tournament_information.TournamentInformation().selection_of_players_to_add()
-        if len(list_of_players_to_add) < 6:
-            print("Vous n'avez pas ajouté suffisamment de participant. Veuillez réessayer.")
-        elif len(list_of_players_to_add) % 2 != 0:
-            print("Le nombre de participant n'est pas pair. Veuillez réessayer.")
-        else:
-            player_number_added_incorrect = False
-            for player_number_added in list_of_players_to_add:
-                if player_number_added not in list_of_player_number:
-                    print("Un numéro de joueur sélectionné n'existe pas. Veuillez réessayer.")
-                    player_number_added_incorrect = True
-            list_of_numbers_of_players_participating_in_the_tournament = list(map(int, list_of_players_to_add))
-            liste_tournoi_players = []
-            for list_index in range(len(list_of_players_in_json_file)):
-                for number_of_player_participating_in_the_tournament \
-                        in list_of_numbers_of_players_participating_in_the_tournament:
-                    if list_index == number_of_player_participating_in_the_tournament - 1:
-                        liste_tournoi_players.append(list_of_players_in_json_file[list_index])
+        player_number_added_incorrect = False
+        all_players_added_to_the_tournament = set()
+        list_of_players_of_the_tournament_with_their_score = {}
+        try:
+            if len(list_of_players_to_add) < 6:
+                print("Vous n'avez pas ajouté suffisamment de participant. Veuillez réessayer.")
+                player_number_added_incorrect = True
+            elif len(list_of_players_to_add) % 2 != 0:
+                print("Le nombre de participant n'est pas pair. Veuillez réessayer.")
+                player_number_added_incorrect = True
+            else:
+                for player_number_added in list_of_players_to_add:
+                    if player_number_added in all_players_added_to_the_tournament:
+                        print("Vous avez ajouté un joueur en double. Veuillez réessayer.")
+                        player_number_added_incorrect = True
+                    elif player_number_added not in list_of_player_number:
+                        print("Un numéro de joueur sélectionné n'existe pas. Veuillez réessayer.")
+                        player_number_added_incorrect = True
+                    all_players_added_to_the_tournament.add(player_number_added)
+                list_of_numbers_of_players_participating_in_the_tournament = list(map(int, list_of_players_to_add))
+                liste_tournoi_players = []
+                for list_index in range(len(list_of_players_in_json_file)):
+                    for number_of_player_participating_in_the_tournament \
+                            in list_of_numbers_of_players_participating_in_the_tournament:
+                        if list_index == number_of_player_participating_in_the_tournament - 1:
+                            liste_tournoi_players.append(list_of_players_in_json_file[list_index])
 
-            list_of_players_of_the_tournament_with_their_score = {}
-            for index_of_each_player_in_json_players_file in range(len(list_of_players_in_json_file)):
-                for player_number_in_the_tournament in list_of_numbers_of_players_participating_in_the_tournament:
-                    if index_of_each_player_in_json_players_file == player_number_in_the_tournament - 1:
-                        list_of_players_of_the_tournament_with_their_score.update({
-                            list_of_players_in_json_file[index_of_each_player_in_json_players_file]: score
-                        })
+                for index_of_each_player_in_json_players_file in range(len(list_of_players_in_json_file)):
+                    for player_number_in_the_tournament in list_of_numbers_of_players_participating_in_the_tournament:
+                        if index_of_each_player_in_json_players_file == player_number_in_the_tournament - 1:
+                            list_of_players_of_the_tournament_with_their_score.update({
+                                list_of_players_in_json_file[index_of_each_player_in_json_players_file]: score
+                            })
 
-            self.tournament_information_to_be_created.update({
-                f"Tournoi numero {tournament_number}": {
-                    "Nom du tournoi": list_of_tournament_information[0],
-                    "Lieu du tournoi": list_of_tournament_information[1],
-                    "Date de debut du tournoi": list_of_tournament_information[2],
-                    "Date de fin du tournoi": list_of_tournament_information[3],
-                    "Nombre de tour": number_of_rounds_of_the_tournament,
-                    "Numero du tour actuel": 1,
-                    "Liste des tours": "En attente",
-                    "Liste des joueurs": list_of_players_of_the_tournament_with_their_score,
-                    "Description": list_of_tournament_information[4]
-                }
-            })
-            if player_number_added_incorrect is False:
-                try:
-                    os.path.isfile("../data/tournaments/tournaments.json")
-                    json_tournaments_file = model.Model().json_file_playback("tournaments.json")
-                    json_tournaments_file.update(self.tournament_information_to_be_created)
-                    model.Model().json_file_creation("tournaments.json", json_tournaments_file)
-                except:
-                    model.Model().json_file_creation("tournaments.json", self.tournament_information_to_be_created)
+        except ValueError:
+            print("Le numéro des joueurs peut être uniquement des chiffres. Veuillez réessayer.")
+        return tournament_number, list_of_tournament_information, number_of_rounds_of_the_tournament, \
+            list_of_players_of_the_tournament_with_their_score, player_number_added_incorrect
+
+    def creation_of_tournament(self):
+        """Tournament creation"""
+        recovery_of_tournament_items = self.recovery_of_information_to_create_a_tournament()
+        tournament_number = recovery_of_tournament_items[0]
+        list_of_tournament_information = recovery_of_tournament_items[1]
+        number_of_rounds_of_the_tournament = recovery_of_tournament_items[2]
+        list_of_players_of_the_tournament_with_their_score = recovery_of_tournament_items[3]
+        player_number_added_incorrect = recovery_of_tournament_items[4]
+
+        self.tournament_information_to_be_created.update({
+            f"Tournoi numéro {tournament_number}": {
+                "Nom du tournoi": list_of_tournament_information[0],
+                "Lieu du tournoi": list_of_tournament_information[1],
+                "Date de début du tournoi": list_of_tournament_information[2],
+                "Date de fin du tournoi": list_of_tournament_information[3],
+                "Nombre de tour": number_of_rounds_of_the_tournament,
+                "Numéro du tour actuel": 1,
+                "Liste des tours": "En attente",
+                "Liste des joueurs": list_of_players_of_the_tournament_with_their_score,
+                "Description": list_of_tournament_information[4]
+            }
+        })
+        if player_number_added_incorrect is False:
+            try:
+                os.path.isfile("../data/tournaments/tournaments.json")
+                json_tournaments_file = model.Model().json_file_playback("tournaments.json")
+                json_tournaments_file.update(self.tournament_information_to_be_created)
+                model.Model().json_file_creation("tournaments.json", json_tournaments_file)
+            except:
+                model.Model().json_file_creation("tournaments.json", self.tournament_information_to_be_created)
 
     def modification_of_the_list_of_rounds(self):
         """Modification of the list of round of the json tournaments file.

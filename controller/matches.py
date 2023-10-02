@@ -107,11 +107,11 @@ class Matches:
             current_list_of_rounds.update({
                 f"{list_of_tournament_numbers[-1]} / {rounds_list[-1]}": matches_of_each_round,
                 f"Infos du {list_of_tournament_numbers[-1]} / {rounds_list[-1]}": {
-                    "Date de debut": tour_start_date,
-                    "Heure de debut": tour_start_time,
+                    "Date de début": tour_start_date,
+                    "Heure de début": tour_start_time,
                     "Date de fin": "En cours",
                     "Heure de fin": "En cours",
-                    "Couleur des pieces des joueurs des matchs": color_used_for_each_player
+                    "Couleur des pièces des joueurs des matchs": color_used_for_each_player
                 }
             })
         model.Model().json_file_creation("rounds.json", current_list_of_rounds)
@@ -156,9 +156,9 @@ class Matches:
         """
         json_tournaments_file = model.Model().json_file_playback("tournaments.json")
         for tournament_information in json_tournaments_file.values():
-            tournament_information["Numero du tour actuel"] += 1
-            if tournament_information["Numero du tour actuel"] > NUMBER_OF_ROUNDS:
-                tournament_information["Numero du tour actuel"] = NUMBER_OF_ROUNDS
+            tournament_information["Numéro du tour actuel"] += 1
+            if tournament_information["Numéro du tour actuel"] > NUMBER_OF_ROUNDS:
+                tournament_information["Numéro du tour actuel"] = NUMBER_OF_ROUNDS
         model.Model().json_file_creation("tournaments.json", json_tournaments_file)
 
     def recovery_of_the_list_of_rounds(self):
@@ -195,10 +195,10 @@ class Matches:
         for player_numbers_and_their_score in json_matches_file[list_of_rounds[-1]].values():
             for player_number in player_numbers_and_their_score:
                 for tied_player in list_of_tied_players:
-                    if player_number == f"Joueur numero {tied_player}":
+                    if player_number == f"Joueur numéro {tied_player}":
                         player_numbers_and_their_score[player_number] += 0.5
                 for winning_player in list_of_winning_players:
-                    if player_number == f"Joueur numero {winning_player}":
+                    if player_number == f"Joueur numéro {winning_player}":
                         player_numbers_and_their_score[player_number] += 1
 
         model.Model().json_file_creation("matches.json", json_matches_file)

@@ -14,7 +14,7 @@ class ManuallyRetrieveInformation:
         Check if characters are only alphabetic.
         """
         ask_family_name = input("Nom de famille : ")
-        if re.search("[^a-zA-Z]", ask_family_name) or len(ask_family_name) < 2:
+        if re.search("[^a-zA-Z\w+]", ask_family_name) or len(ask_family_name) < 2:
             print("Le nom n'est pas correct. Veuillez réessayer")
         else:
             self.family_name.append(ask_family_name)
@@ -26,7 +26,7 @@ class ManuallyRetrieveInformation:
         Check if characters are only alphabetic.
         """
         ask_first_name = input("Prénom : ")
-        if re.search("[^a-zA-Z]", ask_first_name) or len(ask_first_name) < 2:
+        if re.search("[^a-zA-Z\w+]", ask_first_name) or len(ask_first_name) < 2:
             print("Le prénom n'est pas correct. Veuillez réessayer")
         else:
             self.first_name.append(ask_first_name)
@@ -52,7 +52,7 @@ class ManuallyRetrieveInformation:
 
     def know_who_won_at_the_end_of_the_round(self, first_player, second_player):
         """Ask the user if there was a winner in the round."""
-        ask_match_result = input(f"Joueur numero {first_player} contre Joueur numero {second_player} | Y a t-il un "
+        ask_match_result = input(f"Joueur numéro {first_player} contre Joueur numéro {second_player} | Y a t-il un "
                                  f"gagnant ? (o/n)")
         return ask_match_result
 

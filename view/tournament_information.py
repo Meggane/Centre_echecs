@@ -50,7 +50,7 @@ class TournamentInformation:
         json_players_file = model.Model().json_file_playback("players.json")
         players_list = []
         for player in json_players_file.values():
-            players_list.append(f"{player['Nom de famille']} {player['Prenom']} {player['Date de naissance']}")
+            players_list.append(f"{player['Nom de famille']} {player['Prénom']} {player['Date de naissance']}")
         menu_number = 1
         print("Sélectionnez les joueurs à ajouter au tournoi (sélectionnez 6 joueurs minimum et un nombre pair) :")
         for player_index in range(len(players_list)):
