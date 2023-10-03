@@ -239,3 +239,12 @@ class Players:
             color_of_the_first_player_s_pieces = "Blanc"
             color_of_the_second_player_s_pieces = "Noir"
         return color_of_the_first_player_s_pieces, color_of_the_second_player_s_pieces
+
+    def sort_players_alphabetically(self):
+        """Recovery of the list of each player’s family names and sort them alphabetically."""
+        players_list = model.Model().json_file_playback("players.json")
+        list_of_players = []
+        for player_information in players_list.values():
+            list_of_players.append(f"{player_information['Nom de famille']} {player_information['Prénom']}")
+        sorting_of_players = sorted(list_of_players)
+        return sorting_of_players

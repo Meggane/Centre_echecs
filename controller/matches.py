@@ -72,6 +72,7 @@ class Matches:
         score of each player, the beginning and end of the date and time of the round. These are generated
         automatically at the time of entry.
         """
+        self.creation_of_match()
         current_list_of_rounds = {}
         json_matches_file = model.Model().json_file_playback("matches.json")
         if os.path.isfile("../data/tournaments/rounds.json"):
