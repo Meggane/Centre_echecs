@@ -7,11 +7,11 @@ class Model:
 
     def json_file_creation(self, json_file_name, data_to_add=None):
         """Creation of the json file to retrieve the information of each player."""
-        with open(f"../data/tournaments/{json_file_name}", "w", encoding="utf-8") as json_file:
+        with open(f"data/tournaments/{json_file_name}", "w", encoding="utf-8") as json_file:
             json.dump(data_to_add, json_file, indent=4, ensure_ascii=False)
 
     def json_file_playback(self, json_file_name):
         """Json data recovery to manipulate and modify them if necessary."""
-        with open(f"../data/tournaments/{json_file_name}") as json_file:
+        with open(f"data/tournaments/{json_file_name}") as json_file:
             self.json_file_data = json.load(json_file)
         return self.json_file_data

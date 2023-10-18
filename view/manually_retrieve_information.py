@@ -14,8 +14,9 @@ class ManuallyRetrieveInformation:
         Check if characters are only alphabetic.
         """
         ask_family_name = input("Nom de famille : ")
-        if re.search("[^a-zA-Z\w+]", ask_family_name) or len(ask_family_name) < 2:
+        if re.findall(r"[^a-zA-Z-\séèîïÉÎÏ+]", ask_family_name) or len(ask_family_name) < 2:
             print("Le nom n'est pas correct. Veuillez réessayer")
+            self.family_name.append(False)
         else:
             self.family_name.append(ask_family_name)
         return self.family_name
@@ -26,8 +27,9 @@ class ManuallyRetrieveInformation:
         Check if characters are only alphabetic.
         """
         ask_first_name = input("Prénom : ")
-        if re.search("[^a-zA-Z\w+]", ask_first_name) or len(ask_first_name) < 2:
+        if re.findall(r"[^a-zA-Z-\séèîïÉÎÏ+]", ask_first_name) or len(ask_first_name) < 2:
             print("Le prénom n'est pas correct. Veuillez réessayer")
+            self.first_name.append(False)
         else:
             self.first_name.append(ask_first_name)
         return self.first_name
@@ -43,6 +45,7 @@ class ManuallyRetrieveInformation:
                 self.date_of_birth.append(ask_date_of_birth)
         except ValueError:
             print("La date de naissance n'est pas au format JJ/MM/AAAA. Veuillez réessayer")
+            self.date_of_birth.append(False)
         return self.date_of_birth
 
     def adding_a_new_player(self):
@@ -60,3 +63,8 @@ class ManuallyRetrieveInformation:
         """Ask the user for the winning player’s number."""
         ask_for_the_winning_player_s_number = input("Numéro du joueur gagnant : ")
         return ask_for_the_winning_player_s_number
+
+    def recovery_of_the_tournament_name(self):
+        """Ask the user for the name of the tournament whose information he wants to retrieve."""
+        ask_for_the_name_of_the_tournament = input("Nom du tournoi à sélectionner : ")
+        return ask_for_the_name_of_the_tournament

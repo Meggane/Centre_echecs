@@ -1,5 +1,4 @@
 import re
-import os
 import random
 import time
 import sys
@@ -7,47 +6,56 @@ import sys
 sys.path.append("..")
 from model import model
 from view import manually_retrieve_information
+from controller import InformationRetrieval
 
 
 class Players:
     def __init__(self):
-        self.scores = {}
+        self.dictionary_of_all_players = {}
 
     def add_players(self, add_new_player="o", player_number=0, score=0):
         """Add players to the tournament with the control terminal.
 
         Recovery of the entry family_name, first_name and date_of_birth.
 
-        The number of each player is added automatically.
+        The number of each player is added automatically and the default score is 0.
         """
-        dictionary_of_all_players = {}
-        if os.path.isfile("../data/tournaments/players.json"):
+        try:
             recovery_of_the_json_file_with_list_of_players = model.Model().json_file_playback("players.json")
-            dictionary_of_all_players.update(recovery_of_the_json_file_with_list_of_players)
+            self.dictionary_of_all_players.update(recovery_of_the_json_file_with_list_of_players)
             for each_player in recovery_of_the_json_file_with_list_of_players:
                 recovery_of_the_number_of_each_player = re.findall(r"[0-9]+", each_player)
                 list_of_all_numbers = list(map(int, recovery_of_the_number_of_each_player))
                 player_number = list_of_all_numbers[-1]
-
+        except FileNotFoundError:
+            pass
         while add_new_player == "o":
-            player_number += 1
-            for each_family_name, each_first_name, each_date_of_birth \
-                    in zip(manually_retrieve_information.ManuallyRetrieveInformation().player_s_family_name(),
-                           manually_retrieve_information.ManuallyRetrieveInformation().player_s_first_name(),
-                           manually_retrieve_information.ManuallyRetrieveInformation().player_s_date_of_birth()):
-                dictionary_of_all_players.update({
-                    f"Joueur numéro {player_number}": {
-                        "Nom de famille": each_family_name,
-                        "Prénom": each_first_name,
-                        "Date de naissance": each_date_of_birth,
-                        "Score": score
-                    },
-                })
-                add_new_player = manually_retrieve_information.ManuallyRetrieveInformation().adding_a_new_player()
-        model.Model().json_file_creation("players.json", dictionary_of_all_players)
+            for each_family_name in manually_retrieve_information.ManuallyRetrieveInformation().player_s_family_name():
+                if each_family_name is False:
+                    break
+                for each_first_name in \
+                        manually_retrieve_information.ManuallyRetrieveInformation().player_s_first_name():
+                    if each_first_name is False:
+                        break
+                    for each_date_of_birth in \
+                            manually_retrieve_information.ManuallyRetrieveInformation().player_s_date_of_birth():
+                        if each_date_of_birth is False:
+                            break
+                        player_number += 1
+                        self.dictionary_of_all_players.update({
+                            f"Joueur numéro {player_number}": {
+                                "Nom de famille": each_family_name,
+                                "Prénom": each_first_name,
+                                "Date de naissance": each_date_of_birth,
+                                "Score": score
+                            },
+                        })
+                        add_new_player = \
+                            manually_retrieve_information.ManuallyRetrieveInformation().adding_a_new_player()
+        model.Model().json_file_creation("players.json", self.dictionary_of_all_players)
 
     def randomly_mix_players(self):
-        """Randomly mix players to create random matches for the first game."""
+        """Randomly mix players to create random matches for the first match."""
         json_tournaments_file = model.Model().json_file_playback("tournaments.json")
         list_of_player_numbers = []
         for tournament_information in json_tournaments_file.values():
@@ -60,9 +68,7 @@ class Players:
     def random_player_selection(self):
         """Define players who play together according to the random list of players."""
         mixed_list_players = self.randomly_mix_players()
-        matches_list = []
-        for two_in_two_index in range(0, len(mixed_list_players), 2):
-            matches_list.append(mixed_list_players[two_in_two_index:two_in_two_index + 2])
+        matches_list = InformationRetrieval().recovery_of_players_by_two(mixed_list_players)
         return matches_list
 
     def player_ranking(self):
@@ -70,17 +76,14 @@ class Players:
 
         We get the score of each player according to the selected json file then we classify them.
         """
-        self.scores = {}
+        scores = {}
         json_tournaments_file = model.Model().json_file_playback("tournaments.json")
-        liste_num_tournoi = []
-        for num_tournoi in json_tournaments_file:
-            liste_num_tournoi.append(num_tournoi)
-
-        for player_num_and_name, player_score in \
-                json_tournaments_file[liste_num_tournoi[-1]]["Liste des joueurs"].items():
-            player_num = re.findall(r"Joueur numéro [0-9]+", player_num_and_name)
-            self.scores.update({"".join(player_num): player_score})
-        ranking_of_players = sorted(self.scores.items(), key=lambda item: item[1], reverse=True)
+        list_of_tournament_numbers = InformationRetrieval().retrieval_of_dictionary_keys(json_tournaments_file)
+        for player_number_and_name, player_score in \
+                json_tournaments_file[list_of_tournament_numbers[-1]]["Liste des joueurs"].items():
+            player_number = re.findall(r"Joueur numéro [0-9]+", player_number_and_name)
+            scores.update({"".join(player_number): player_score})
+        ranking_of_players = sorted(scores.items(), key=lambda item: item[1], reverse=True)
         return ranking_of_players
 
     def definition_of_the_rank_of_the_players(self):
@@ -95,7 +98,6 @@ class Players:
         for player in player_ranking_list:
             score_list.append(player[1])
             player_list.append(player[0])
-
         player_score_without_duplicate = sorted(set(score_list), reverse=True)
         list_of_rank = []
         number_of_different_scores = len(player_score_without_duplicate)
@@ -109,7 +111,6 @@ class Players:
                         if len(list_of_rank) > 1 and current_rank != list_of_rank[-1]:
                             current_rank = len(list_of_rank) + 1
                     list_of_rank.append(current_rank)
-
         dictionary_with_the_rank_of_each_player = {}
         for player_number, rank in zip(player_list, list_of_rank):
             dictionary_with_the_rank_of_each_player.update({
@@ -123,10 +124,7 @@ class Players:
         If two players have the same rank then we draw lots to determine who will play against whom.
         """
         ranking = self.definition_of_the_rank_of_the_players()
-        rank_of_players = []
-        for rank_of_each_player in ranking.values():
-            rank_of_players.append(rank_of_each_player)
-
+        rank_of_players = InformationRetrieval().retrieval_of_dictionary_values(ranking)
         # recovers all the ranks of all players if some have the same.
         rank_list = sorted(set(rank_of_players))
         number_of_players_ranked_according_to_their_rank = []
@@ -134,7 +132,6 @@ class Players:
             several_lists_with_in_each_the_list_of_players_with_the_same_rank = \
                 [player_number for player_number, player_rank in ranking.items()
                  if player_rank == each_rank]
-
             mix_of_players_with_the_same_rank = \
                 random.sample(several_lists_with_in_each_the_list_of_players_with_the_same_rank,
                               len(several_lists_with_in_each_the_list_of_players_with_the_same_rank))
@@ -144,11 +141,9 @@ class Players:
 
     def selection_of_players_who_will_play_together_according_to_their_ranking(self):
         """Selection of players to play together."""
-        matches_list = []
         number_of_players_ranked_according_to_their_rank = self.matches_selection_based_on_player_ranking()
-        for each_player in range(0, len(number_of_players_ranked_according_to_their_rank), 2):
-            matches_list.append(number_of_players_ranked_according_to_their_rank
-                                [each_player:each_player + 2])
+        matches_list = \
+            InformationRetrieval().recovery_of_players_by_two(number_of_players_ranked_according_to_their_rank)
         return matches_list
 
     def recovery_of_players_who_have_already_played_together(self):
@@ -161,7 +156,11 @@ class Players:
         return player_numbers_who_have_already_played_together
 
     def modification_of_the_match_list(self, list_with_player_ranking, list_with_modified_player_ranking):
-        """We change the list of matches according to the ranking of players"""
+        """We change the list of matches according to the ranking of players.
+
+        Here, we do not use the recovery_of_players_by_two function of the file __init__ because the list to be filled
+        corresponds to an argument of the function.
+        """
         for each_player in range(0, len(list_with_player_ranking), 2):
             list_with_modified_player_ranking.append(list_with_player_ranking[each_player:each_player + 2])
         return list_with_modified_player_ranking
@@ -188,14 +187,11 @@ class Players:
                 number_and_index_of_players.update({
                     each_player: index_of_player
                 })
-
         # We create a new list of matches with players who have never played against each other
         self.modification_of_the_match_list(list_with_player_ranking, list_with_modified_player_ranking)
-
         # We define a time for the execution of the while loop
         start_time = time.time()
         max_execution_time = 2
-
         index_being = 0
         while index_being < len(players_who_have_already_played_against):
             two_players_have_already_played_together = False
@@ -224,8 +220,7 @@ class Players:
                                                                            index_of_the_player_to_be_deleted,
                                                                            index_where_to_place_the_player)
                         continue
-                    break
-            if two_players_have_already_played_together == False:
+            if two_players_have_already_played_together is False:
                 index_being += 1
         return list_with_modified_player_ranking
 
